@@ -1,0 +1,6 @@
+[submodule "expected"]
+	path = expected
+	url = https://github.com/TartanLlama/expected.git
+[submodule "benchmark"]
+	path = benchmark
+	url = https://github.com/google/benchmark
