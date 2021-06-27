@@ -6,9 +6,9 @@ enable_testing()
 
 add_definitions("-std=c++17" "-O3" )
 
-#include "expected/include/tl/expected.hpp"
-#include "benchmark/include/benchmark/benchmark.h"
-add_subdirectory("benchmark")
-include_directories("benchmark/include/" "expected/include/")
+add_subdirectory("external/googletest") # include before benchmark
+add_subdirectory("external/benchmark")
+
+include_directories("external/benchmark/include/" "external/expected/include/")
 add_executable(err main.cpp)
 target_link_libraries(err benchmark pthread)
