@@ -10,5 +10,5 @@ add_subdirectory("external/googletest") # include before benchmark
 add_subdirectory("external/benchmark")
 
 include_directories("external/benchmark/include/" "external/expected/include/")
-add_executable(err main.cpp)
-target_link_libraries(err benchmark pthread)
+add_executable(bench benchmark.cpp)
+target_link_libraries(bench benchmark pthread)
