@@ -5,7 +5,13 @@
 #include <optional>
 #include <functional>
 #include <ctime>
+
+// #define RUN_ON_QUICKBENCH // uncomment to run on quickbench
+
+#ifndef RUN_ON_QUICKBENCH
 #include "tl/expected.hpp"
+#endif
+
 #include "benchmark/benchmark.h"
 #include <vector>
 #include <numeric>
@@ -15,9 +21,9 @@
 #define E_OK 0
 
 #if 1
-#define OPTIMIZE(expr) benchmark::DoNotOptimize(expr);
+#define OPTIMIZER(expr) benchmark::DoNotOptimize(expr);
 #else
-#define OPTIMIZE(expr) expr;
+#define OPTIMIZER(expr) expr;
 #endif
 
 class ErrorInjector
@@ -76,11 +82,13 @@ class MeanCalculation
         return { mean() };
     }
 
+#ifndef RUN_ON_QUICKBENCH
     tl::expected<T, int> with_expected() const
     {
         if (_data.empty()) return tl::unexpected<int>(E_FAIL);
         return mean();
     }
+#endif 
 
     std::tuple<bool, T> with_tuple() const
     {
@@ -133,7 +141,7 @@ static void BM_do_with_exception(benchmark::State &state)
     for (auto _ : state)
     {
         MeanCalculation<double> m;
-        OPTIMIZE(x(m));
+        OPTIMIZER(x(m));
     }
 }
 
@@ -151,7 +159,7 @@ static void BM_do_with_optional(benchmark::State &state)
     for (auto _ : state)
     {
         MeanCalculation<double> m;
-        OPTIMIZE(x(m));
+        OPTIMIZER(x(m));
     }
 }
 
@@ -172,7 +180,7 @@ static void BM_do_with_ref(benchmark::State &state)
     for (auto _ : state)
     {
         MeanCalculation<double> m;
-        OPTIMIZE(x(m));
+        OPTIMIZER(x(m));
     }
 }
 
@@ -191,10 +199,11 @@ static void BM_do_with_tuple(benchmark::State &state)
     for (auto _ : state)
     {
         MeanCalculation<double> m;
-        OPTIMIZE(x(m));
+        OPTIMIZER(x(m));
     }
 }
 
+#ifndef RUN_ON_QUICKBENCH
 static void BM_do_with_expected(benchmark::State &state)
 {
     MeanCalculation<double> m;
@@ -210,15 +219,24 @@ static void BM_do_with_expected(benchmark::State &state)
     for (auto _ : state)
     {
         MeanCalculation<double> m;
-        OPTIMIZE(x(m));
+        OPTIMIZER(x(m));
     }
 }
+#endif 
+
+#ifdef RUN_ON_QUICKBENCH // for quickbench only one argument is used
+#define ARGS() Arg(2)
+#else
 #define ARGS() Arg(2048)->Arg(1024)->Arg(512)->Arg(256)->Arg(128)->Arg(64)->Arg(16)->Arg(8)->Arg(4)->Arg(2)
+#endif
 
 BENCHMARK(BM_do_with_exception)->ARGS();
 BENCHMARK(BM_do_with_optional)->ARGS();
 BENCHMARK(BM_do_with_ref)->ARGS();
 BENCHMARK(BM_do_with_tuple)->ARGS();
-BENCHMARK(BM_do_with_expected)->ARGS();
 
+#ifndef RUN_ON_QUICKBENCH
+BENCHMARK(BM_do_with_expected)->ARGS();
 BENCHMARK_MAIN();
+#endif
+
